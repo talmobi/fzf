@@ -2407,7 +2407,7 @@ func (t *Terminal) printHighlighted(result Result, colBase tui.ColorPair, colMat
 				}
 			}
 			if t.hscroll {
-				if t.keepRight && pos == nil {
+				if t.keepRight {
 					trimmed, diff := t.trimLeft(line, maxWidth-ellipsisWidth)
 					transformOffsets(diff, false)
 					line = append(ellipsis, trimmed...)
@@ -4177,7 +4177,13 @@ func (t *Terminal) Loop() error {
 					req(reqQuit)
 				}
 			case actEndOfLine:
-				t.cx = len(t.input)
+				if t.cx == len(t.input) {
+					// TODO toggle keep-right mode
+					t.keepRight = !t.keepRight
+					req(reqFullRedraw)
+				} else {
+					t.cx = len(t.input)
+				}
 			case actCancel:
 				if len(t.input) == 0 {
 					req(reqQuit)
